@@ -10,7 +10,12 @@
             <NewReferralUserBanner v-if="showReferralBanner">
             </NewReferralUserBanner>
 
-            <NewUserBanner v-else></NewUserBanner>
+            <NewReferralPartnerUserBanner
+              v-else-if="showReferralPartnerBanner"
+              :referralPartner="referralPartner"
+            ></NewReferralPartnerUserBanner>
+
+            <NewUserBanner v-else-if="showUserBanner"></NewUserBanner>
 
             <form>
               <b-form-input
@@ -107,6 +112,7 @@ import TermsOfService from '@/components/Terms-of-Service';
 import MessagePage from '@/components/Message-Page';
 import NewReferralUserBanner from './New-Referral-User-Banner';
 import NewUserBanner from './New-User-Banner';
+import NewReferralPartnerUserBanner from './New-Referral-Partner-User-Banner';
 import { mapActions } from 'vuex';
 import { sha256 } from '@/utils';
 
@@ -117,6 +123,7 @@ export default {
     NavAuthentication,
     TermsOfService,
     NewReferralUserBanner,
+    NewReferralPartnerUserBanner,
     NewUserBanner,
     MessagePage
   },
@@ -124,14 +131,30 @@ export default {
   created () {
     if (this.$route.query.referralLink) {
       this.showReferralBanner = true;
-    } else {
-      this.showReferralBanner = false;
+      this.showReferralPartnerBanner = false;
+      this.showUserBanner = false;
+      return;
     }
+
+    if (this.$route.query.referralPartner) {
+      this.referralPartner = this.$route.query.referralPartner;
+      this.showReferralPartnerBanner = true;
+      this.showReferralBanner = false;
+      this.showUserBanner = false;
+      return;
+    }
+
+    this.showReferralBanner = false;
+    this.showReferralPartnerBanner = false;
+    this.showUserBanner = true;
   },
 
   data () {
     return {
       showReferralBanner: false,
+      showReferralPartnerBanner: false,
+      showUserBanner: true,
+      referralPartner: '',
       email: '',
       initialPassword: '',
       confirmPassword: '',
@@ -185,7 +208,8 @@ export default {
       this.createUser({
         email: this.email,
         password: sha256(this.initialPassword),
-        referralLink: this.$route.query.referralLink
+        referralLink: this.$route.query.referralLink,
+        referralPartner: this.$route.query.referralPartner
       }).then((result) => {
         this.signup.success = true;
       }).catch((err) => {
