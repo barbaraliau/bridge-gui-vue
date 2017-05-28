@@ -33,7 +33,7 @@ const actions = {
   createUser ({ commit, state }, credentials) {
     return new Promise((resolve, reject) => {
       axios
-        .post(config.app.BRIDGE_URL + '/users', credentials)
+        .post(config.app.BRIDGE_URL + '/users', { opts: credentials })
         .then((result) => {
           commit(SET_USER, credentials.email);
 
